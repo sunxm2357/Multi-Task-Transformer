@@ -5,7 +5,7 @@ out_dir: "../"
 # Database
 train_db_name: NYUD
 val_db_name: NYUD
-trBatch: 2
+trBatch: 4
 valBatch: 6
 nworkers: 2
 ignore_index: 255
