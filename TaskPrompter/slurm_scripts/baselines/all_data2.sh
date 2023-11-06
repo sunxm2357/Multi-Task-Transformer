@@ -5,6 +5,7 @@
 #SBATCH -t 24:00:00
 #SBATCH -N 1
 #SBATCH -c 32
+#SBATCH -n 1
 #SBATCH --gpus-per-task=4
 #SBATCH --gpu-bind=none
 #SBATCH -J all_data2
