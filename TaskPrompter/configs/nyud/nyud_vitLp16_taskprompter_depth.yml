@@ -1,5 +1,5 @@
 # Setup
-version_name: TaskPrompter_nyud_vitLp16_semseg
+version_name: TaskPrompter_nyud_vitLp16_depth
 out_dir: "../"
 
 # Database
