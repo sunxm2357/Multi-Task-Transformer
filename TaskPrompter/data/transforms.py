@@ -196,13 +196,14 @@ class RandomCrop:
         crop_location = self.get_random_crop_loc(sample['image'])
         if self.cat_max_ratio < 1.:
             # Repeat 10 times
-            for _ in range(10):
-                seg_tmp = self.random_crop('semseg', sample['semseg'], crop_location)
-                labels, cnt = np.unique(seg_tmp, return_counts=True)
-                cnt = cnt[labels != 255]
-                if len(cnt) > 1 and np.max(cnt) / np.sum(cnt) < self.cat_max_ratio:
-                    break
-                crop_location = self.get_random_crop_loc(sample['image'])
+            if 'semseg' in sample.keys():
+                for _ in range(10):
+                    seg_tmp = self.random_crop('semseg', sample['semseg'], crop_location)
+                    labels, cnt = np.unique(seg_tmp, return_counts=True)
+                    cnt = cnt[labels != 255]
+                    if len(cnt) > 1 and np.max(cnt) / np.sum(cnt) < self.cat_max_ratio:
+                        break
+                    crop_location = self.get_random_crop_loc(sample['image'])
 
         for key, val in sample.items():
             if key == 'meta':
