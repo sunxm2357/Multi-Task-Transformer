@@ -124,7 +124,7 @@ def get_transformations(p):
         return None, None
 
 
-def get_train_dataset(p, transforms=None):
+def get_train_dataset(p, transforms=None, task_name=None):
     """ Return the train dataset """
 
     db_name = p['train_db_name']
@@ -142,11 +142,17 @@ def get_train_dataset(p, transforms=None):
 
     if db_name == 'NYUD':
         from data.nyud import NYUD_MT
-        database = NYUD_MT(p.db_paths['NYUD_MT'], download=False, split='train', transform=transforms, do_edge='edge' in p.TASKS.NAMES, 
-                                    do_semseg='semseg' in p.TASKS.NAMES, 
-                                    do_normals='normals' in p.TASKS.NAMES, 
-                                    do_depth='depth' in p.TASKS.NAMES, overfit=False)
-        
+        if task_name is None:
+            database = NYUD_MT(p.db_paths['NYUD_MT'], download=False, split='train', transform=transforms, do_edge='edge' in p.TASKS.NAMES,
+                                        do_semseg='semseg' in p.TASKS.NAMES,
+                                        do_normals='normals' in p.TASKS.NAMES,
+                                        do_depth='depth' in p.TASKS.NAMES, overfit=False)
+        else:
+            database = NYUD_MT(p.db_paths['NYUD_MT'], download=False, split='train', transform=transforms,
+                               do_edge='edge' == task_name,
+                               do_semseg='semseg' == task_name,
+                               do_normals='normals' == task_name,
+                               do_depth='depth' == task_name, overfit=False)
     if db_name == 'Cityscapes3D':
         from data.cityscapes3d import CITYSCAPES3D
         database = CITYSCAPES3D(p, p.db_paths['Cityscapes3D'], split=["train"], is_transform=True,

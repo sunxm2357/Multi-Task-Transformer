@@ -136,6 +136,90 @@ def train_phase(p, args, train_loader, test_dataloader, model, criterion, optimi
     return False, iter_count
 
 
+def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, criterion, optimizer, scheduler, epoch, tb_writer,
+                tb_writer_test, iter_count):
+    """ Vanilla training with fixed loss weights """
+    model.train()
+
+    # For visualization of 3ddet in each epoch
+    if '3ddet' in p.TASKS.NAMES:
+        train_save_dirs = {task: os.path.join(p['save_dir'], 'train', task) for task in ['3ddet']}
+        for save_dir in train_save_dirs.values():
+            mkdir_if_missing(save_dir)
+
+    dataloader_len = [len(dataloader) for dataloader in train_loaders]
+    min_epoch_len = min(dataloader_len)
+    num_dataloaders = len(train_loaders)
+    iter_dataloaders = [iter(dataloader)  for dataloader in train_loaders ]
+
+    for i in range(min_epoch_len):
+        optimizer.zero_grad()
+        for t_id, iter_dataloader in enumerate(iter_dataloaders):
+            # Forward pass
+            cpu_batch = next(iter_dataloader)
+            batch = to_cuda(cpu_batch)
+            images = batch['image']
+            output = model(images)
+            iter_count += 1
+
+            # Measure loss
+            loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[t_id]])
+            # get learning rate
+            lr = scheduler.get_lr()
+            loss_dict['lr'] = torch.tensor(lr[0])
+
+            if tb_writer is not None:
+                update_tb(tb_writer, 'Train_Loss', loss_dict, iter_count)
+
+            loss_dict['total'].backward()
+
+        # Backward
+        torch.nn.utils.clip_grad_norm_(model.parameters(), **p.grad_clip_param)
+        optimizer.step()
+        scheduler.step()
+
+        # end condition
+        if iter_count >= p.max_iter:
+            print('Max itereaction achieved.')
+            # return True, iter_count
+            end_signal = True
+        else:
+            end_signal = False
+
+        # Evaluate
+        if end_signal:
+            eval_bool = True
+        elif iter_count % p.val_interval == 0:
+            eval_bool = True
+        else:
+            eval_bool = False
+
+        # Perform evaluation
+        if eval_bool and args.local_rank == 0:
+            print('Evaluate at iter {}'.format(iter_count))
+            curr_result = test_phase(p, test_dataloader, model, criterion, iter_count)
+            tb_update_perf(p, tb_writer_test, curr_result, iter_count)
+            if '3ddet' in curr_result.keys():
+                curr_result.pop('3ddet')
+            print('Evaluate results at iteration {}: \n'.format(iter_count))
+            print(curr_result)
+            with open(os.path.join(p['save_dir'], p.version_name + '_' + str(iter_count) + '.txt'), 'w') as f:
+                json.dump(curr_result, f, indent=4)
+
+            # Checkpoint after evaluation
+            print('Checkpoint starts at iter {}....'.format(iter_count))
+            torch.save(
+                {'optimizer': optimizer.state_dict(), 'scheduler': scheduler.state_dict(), 'model': model.state_dict(),
+                 'epoch': epoch, 'iter_count': iter_count - 1}, p['checkpoint'])
+            print('Checkpoint finishs.')
+            model.train()  # set model back to train status
+
+        if end_signal:
+            return True, iter_count
+
+    return False, iter_count
+
+
 class PolynomialLR(torch.optim.lr_scheduler._LRScheduler):
     def __init__(self, optimizer, max_iterations, gamma=0.9, min_lr=0., last_epoch=-1):
         self.max_iterations = max_iterations
