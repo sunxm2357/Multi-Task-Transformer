@@ -148,12 +148,16 @@ def get_train_dataset(p, transforms=None, task_name=None):
                                         do_normals='normals' in p.TASKS.NAMES,
                                         do_depth='depth' in p.TASKS.NAMES, overfit=False)
         else:
-            task_file = p.db_paths
+            if 'task_files' in p.keys():
+                task_file = p['task_files'][task_name]
+            else:
+                task_file = None
             database = NYUD_MT(p.db_paths['NYUD_MT'], download=False, split='train', transform=transforms,
                                do_edge='edge' == task_name,
                                do_semseg='semseg' == task_name,
                                do_normals='normals' == task_name,
-                               do_depth='depth' == task_name, overfit=False)
+                               do_depth='depth' == task_name,
+                               task_file=task_file,  overfit=False)
     if db_name == 'Cityscapes3D':
         from data.cityscapes3d import CITYSCAPES3D
         database = CITYSCAPES3D(p, p.db_paths['Cityscapes3D'], split=["train"], is_transform=True,
