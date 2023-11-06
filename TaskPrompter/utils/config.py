@@ -99,8 +99,7 @@ def create_config(exp_file, params):
     cfg = edict()
     for k, v in config.items():
         cfg[k] = v
-    import pdb
-    pdb.set_trace()
+
     # set root dir
     root_dir = cfg["out_dir"] + cfg['version_name']
 

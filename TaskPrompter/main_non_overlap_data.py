@@ -63,6 +63,8 @@ def main():
     # Retrieve config file
     params = {'run_mode': args.run_mode}
     p = create_config(args.config_exp, params)
+    import pdb
+    pdb.set_trace()
     if args.local_rank == 0:
         sys.stdout = Logger(os.path.join(p['output_dir'], 'log_file.txt'))
         print(p)
