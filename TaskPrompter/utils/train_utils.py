@@ -173,6 +173,7 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
 
             loss_dict['total'].backward()
         iter_count += 1
+        print(iter_count)
 
         # Backward
         torch.nn.utils.clip_grad_norm_(model.parameters(), **p.grad_clip_param)
