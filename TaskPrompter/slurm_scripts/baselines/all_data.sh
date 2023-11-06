@@ -4,7 +4,7 @@
 #SBATCH -q shared
 #SBATCH -t 24:00:00
 #SBATCH -n 1
-#SBATCH -c 8
+#SBATCH -c 32
 #SBATCH --gpus-per-task=1
 
 export SLURM_CPU_BIND="cores"
