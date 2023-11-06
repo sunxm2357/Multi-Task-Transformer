@@ -163,7 +163,7 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
 
             # Measure loss
             loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[t_id]])
-            get learning rate
+            # get learning rate
             lr = scheduler.get_lr()
             loss_dict['lr'] = torch.tensor(lr[0])
 
