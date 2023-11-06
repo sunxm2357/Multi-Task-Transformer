@@ -152,7 +152,7 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
     num_dataloaders = len(train_loaders)
     iter_dataloaders = [iter(dataloader)  for dataloader in train_loaders ]
 
-    for i in range(min_epoch_len):
+    for i in tqdm(range(min_epoch_len)):
         optimizer.zero_grad()
         for t_id, iter_dataloader in enumerate(iter_dataloaders):
             # Forward pass
@@ -160,7 +160,7 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
             batch = to_cuda(cpu_batch)
             images = batch['image']
             output = model(images)
-            iter_count += 1
+
 
             # Measure loss
             loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[t_id]])
@@ -172,6 +172,7 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
                 update_tb(tb_writer, 'Train_Loss', loss_dict, iter_count)
 
             loss_dict['total'].backward()
+        iter_count += 1
 
         # Backward
         torch.nn.utils.clip_grad_norm_(model.parameters(), **p.grad_clip_param)
