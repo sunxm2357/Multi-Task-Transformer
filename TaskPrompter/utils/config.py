@@ -94,6 +94,8 @@ def create_config(exp_file, params):
     with open(exp_file, 'r') as stream:
         config = yaml.safe_load(stream)
 
+    import pdb
+    pdb.set_trace()
     # Copy all the arguments
     cfg = edict()
     for k, v in config.items():

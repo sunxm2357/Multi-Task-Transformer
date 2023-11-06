@@ -40,6 +40,7 @@ class NYUD_MT(data.Dataset):
                  do_semseg=False,
                  do_normals=False,
                  do_depth=False,
+                 task_file=None
                  ):
 
         self.root = root
@@ -87,8 +88,13 @@ class NYUD_MT(data.Dataset):
 
         print('Initializing dataloader for NYUD {} set'.format(''.join(self.split)))
         for splt in self.split:
-            with open(os.path.join(os.path.join(_splits_dir, splt + '.txt')), 'r') as f:
-                lines = f.read().splitlines()
+            if task_file is not None:
+                with open(os.path.join(os.path.join(_splits_dir, task_file)), 'r') as f:
+                    lines = f.read().splitlines()
+            else:
+                with open(os.path.join(os.path.join(_splits_dir, splt + '.txt')), 'r') as f:
+                    lines = f.read().splitlines()
+
 
             for ii, line in enumerate(lines):
 

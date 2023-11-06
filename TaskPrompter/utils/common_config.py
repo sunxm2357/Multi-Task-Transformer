@@ -148,6 +148,7 @@ def get_train_dataset(p, transforms=None, task_name=None):
                                         do_normals='normals' in p.TASKS.NAMES,
                                         do_depth='depth' in p.TASKS.NAMES, overfit=False)
         else:
+            task_file = p.db_paths
             database = NYUD_MT(p.db_paths['NYUD_MT'], download=False, split='train', transform=transforms,
                                do_edge='edge' == task_name,
                                do_semseg='semseg' == task_name,
