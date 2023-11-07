@@ -13,7 +13,7 @@
 #$ -l buyin
 
 # Request 4 CPUs
-#$ -pe omp 6
+#$ -pe omp 3
 
 # Request 2 GPU
 #$ -l gpus=1
