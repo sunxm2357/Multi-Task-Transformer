@@ -1,5 +1,5 @@
 # Setup
-version_name: 4
+version_name: "4"
 out_dir: "../0_0_0_0"
 
 # Database
