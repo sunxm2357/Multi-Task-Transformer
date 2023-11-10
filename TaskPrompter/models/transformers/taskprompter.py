@@ -657,7 +657,8 @@ def _create_task_prompter(variant, pretrained=False, default_cfg=None, **kwargs)
     #     # but I feel better than doing nothing by default for fine-tuning. Perhaps a better interface?
     #     _logger.warning("Removing representation layer for fine-tuning.")
     #     repr_size = None
-
+    import pdb
+    pdb.set_trace()
     model = build_model_with_cfg(
         TaskPrompter, variant, pretrained,
         default_cfg=default_cfg,
