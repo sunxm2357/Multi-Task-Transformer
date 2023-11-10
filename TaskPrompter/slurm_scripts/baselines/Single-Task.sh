@@ -18,8 +18,8 @@ module load pytorch
 cd /pscratch/sd/h/hwchen/code/Multi-Task-Transformer/TaskPrompter
 
 # semseg
-srun --ntasks=1 python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_semseg.yml' --run_mode train &
-srun --ntasks=1 python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_edge.yml' --run_mode train &
-srun --ntasks=1 python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_depth.yml' --run_mode train &
-srun --ntasks=1 python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_normal.yml' --run_mode train &
+srun --exact -u -n 1 --gpus-per-task 1 -c 32 --mem-per-gpu=55G python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_semseg.yml' --run_mode train &
+srun --exact -u -n 1 --gpus-per-task 1 -c 32 --mem-per-gpu=55G python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_edge.yml' --run_mode train &
+srun --exact -u -n 1 --gpus-per-task 1 -c 32 --mem-per-gpu=55G python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_depth.yml' --run_mode train &
+srun --exact -u -n 1 --gpus-per-task 1 -c 32 --mem-per-gpu=55G python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/nyud_vitLp16_taskprompter_normal.yml' --run_mode train &
 wait
