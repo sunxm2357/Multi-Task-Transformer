@@ -673,6 +673,8 @@ def taskprompter_vit_large_patch16_384(pretrained=False, **kwargs):
     ImageNet-1k weights fine-tuned from in21k @ 384x384, source https://github.com/google-research/vision_transformer.
     """
     model_kwargs = dict(select_list=range(6,24,6), patch_size=16, embed_dim=1024, depth=24, num_heads=16, chan_nheads=kwargs['p'].chan_nheads, **kwargs)
+    import pdb
+    pdb.set_trace()
     model = _create_task_prompter('vit_large_patch16_384', pretrained=pretrained, **model_kwargs)
     return model
 
