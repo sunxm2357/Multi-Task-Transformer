@@ -8,12 +8,12 @@
 #SBATCH -c 32
 #SBATCH --gpus-per-task=1
 #SBATCH -J 0_0_0_570_4_7
+#SBATCH --exclusive
+#SBATCH --output=%x_%j.out
 
 
 export SLURM_CPU_BIND="cores"
 
-conda activate sunxm
-module load pytorch
 
 cd /pscratch/sd/h/hwchen/code/Multi-Task-Transformer/TaskPrompter
 
