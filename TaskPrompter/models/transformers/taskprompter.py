@@ -657,8 +657,6 @@ def _create_task_prompter(variant, pretrained=False, default_cfg=None, **kwargs)
     #     # but I feel better than doing nothing by default for fine-tuning. Perhaps a better interface?
     #     _logger.warning("Removing representation layer for fine-tuning.")
     #     repr_size = None
-    import pdb
-    pdb.set_trace()
     model = build_model_with_cfg(
         TaskPrompter, variant, pretrained,
         default_cfg=default_cfg,
@@ -674,8 +672,6 @@ def taskprompter_vit_large_patch16_384(pretrained=False, **kwargs):
     ImageNet-1k weights fine-tuned from in21k @ 384x384, source https://github.com/google-research/vision_transformer.
     """
     model_kwargs = dict(select_list=range(6,24,6), patch_size=16, embed_dim=1024, depth=24, num_heads=16, chan_nheads=kwargs['p'].chan_nheads, **kwargs)
-    import pdb
-    pdb.set_trace()
     model = _create_task_prompter('vit_large_patch16_384', pretrained=pretrained, **model_kwargs)
     return model
 
@@ -684,8 +680,6 @@ def taskprompter_vit_base_patch16_384(pretrained=False, **kwargs):
     ImageNet-1k weights fine-tuned from in21k @ 384x384, source https://github.com/google-research/vision_transformer.
     """
     model_kwargs = dict(select_list=range(3,12,3), patch_size=16, embed_dim=768, depth=12, num_heads=12, chan_nheads=kwargs['p'].chan_nheads,  **kwargs)
-    import pdb
-    pdb.set_trace()
     model = _create_task_prompter('vit_base_patch16_384', pretrained=pretrained, **model_kwargs)
     return model
 
