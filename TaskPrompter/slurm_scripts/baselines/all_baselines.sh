@@ -8,7 +8,8 @@
 #SBATCH -c 32
 #SBATCH --gpus-per-task=1
 #SBATCH -J all_baselines
-
+#SBATCH --exclusive
+#SBATCH --output=%x_%j.out
 
 export SLURM_CPU_BIND="cores"
 
