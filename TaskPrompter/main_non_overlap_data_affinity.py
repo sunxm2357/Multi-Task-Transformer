@@ -35,7 +35,7 @@ dist.init_process_group(backend='nccl', init_method='env://', timeout=datetime.t
 parser = argparse.ArgumentParser(description='Vanilla Training')
 parser.add_argument('--config_exp',
                     help='Config file for the experiment')
-parser.add_argument('--local-rank', default=0, type=int,
+parser.add_argument('--local_rank', default=0, type=int,
                     help='node rank for distributed training')
 parser.add_argument('--run_mode',
                     help='Config file for the experiment')
