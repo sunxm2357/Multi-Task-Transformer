@@ -16,7 +16,7 @@ from utils.common_config import get_train_dataset, get_transformations,\
                                 get_test_dataset, get_train_dataloader, get_test_dataloader,\
                                 get_optimizer, get_model, get_criterion
 from utils.logger import Logger
-from utils.train_utils import train_phase_no_overlap_data
+from utils.train_utils import train_phase_no_overlap_data, train_phase_no_overlap_data_affinity
 from utils.test_utils import test_phase
 from evaluation.evaluate_utils import PerformanceMeter
 
@@ -141,8 +141,12 @@ def main():
             start_epoch = checkpoint['epoch'] + 1 # epoch count is not used
         else:
             start_epoch = 0
+        if 'aff_mat' in checkpoint.keys():
+            aff_mat = checkpoint
+        else:
+            aff_mat = None
         if 'iter_count' in checkpoint.keys():
-            iter_count  = checkpoint['iter_count'] # already + 1 when saving
+            iter_count = checkpoint['iter_count'] # already + 1 when saving
         else:
             iter_count = 0
     else:
@@ -168,7 +172,7 @@ def main():
                 print('Epoch %d/%d' %(epoch+1, p['epochs']))
                 print('-'*10)
 
-            end_signal, iter_count = train_phase_no_overlap_data(p, args, train_dataloaders, test_dataloader, model, criterion, optimizer, scheduler, epoch, tb_writer_train, tb_writer_test, iter_count)
+            end_signal, iter_count, aff_mat = train_phase_no_overlap_data_affinity(p, args, train_dataloaders, affinity_dataloaders, test_dataloader, model, criterion, optimizer, scheduler, epoch, tb_writer_train, tb_writer_test, iter_count, aff_mat)
 
             if end_signal:
                 break

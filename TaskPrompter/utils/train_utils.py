@@ -10,6 +10,18 @@ from utils.utils import to_cuda, get_output, mkdir_if_missing
 import torch
 from tqdm import tqdm
 from utils.test_utils import test_phase
+import math
+import torch.distributed as dist
+from copy import deepcopy
+
+repr_metric_keys = {'semseg': 'mIoU', 'depth': 'rmse', 'normals': 'mean', 'edge': 'loss'}
+large_better = {'semseg': 1, 'depth': -1 , 'normals': -1, 'edge': -1}
+
+def get_task_repr_metric(metrics, task):
+  if task in repr_metric_keys:
+    return metrics[task][repr_metric_keys[task]] * large_better[task]
+  else:
+    raise ValueError('Does not find representative metrics')
 
 
 def update_tb(tb_writer, tag, loss_dict, iter_no):
@@ -218,6 +230,256 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
             return True, iter_count
 
     return False, iter_count
+
+
+def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, test_dataloader,
+                 args, p, iter_count):
+  rank = dist.get_rank() if dist.is_initialized() else 0
+  affinity_enumerators = []
+  for data_loader in affinity_data_loaders:
+    if dist.is_initialized():
+      data_loader.sampler.set_epoch(iter_count)
+    enumerator = enumerate(data_loader)
+    affinity_enumerators.append(enumerator)
+  # save the current state dict for model and optimizer
+  save_model_state_dict = deepcopy(model.state_dict())
+  save_optimizer_state_dict = deepcopy(optimizer.state_dict())
+  save_scheduler_state_dict = deepcopy(scheduler.state_dict())
+  num_task = len(affinity_enumerators)
+  model.eval()
+
+  aff_mat = to_cuda( torch.zeros(num_task, num_task))
+
+  curr_result_before = test_phase(p, test_dataloader, model, criterion, None, num_val=args.affinity_batches)
+  dist.barrier()
+
+  for idx in range(num_task):
+    metric_before = get_task_repr_metric(curr_result_before, p.TASKS.NAMES[idx])
+    # look ahead for several steps with its own loss
+    model.train()
+    for _ in range(args.look_ahead_steps):
+      optimizer.zero_grad()
+      a_id, cpu_batch = next(affinity_enumerators[idx])
+      if a_id == len(affinity_data_loaders[idx]) - 1:
+        affinity_enumerators[idx] = enumerate(
+            affinity_data_loaders[idx])
+
+      batch = to_cuda(cpu_batch)
+      images = batch['image']
+      output = model(images)
+
+      # Measure loss
+      loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[idx]])
+
+      loss_dict['total'].backward()
+      optimizer.step()
+      scheduler.step()
+
+    dist.barrier()
+    # self evaluation
+    model.eval()
+    curr_result_after_self = test_phase(p, test_dataloader, model, criterion, None, num_val=args.affinity_batches)
+
+    dist.barrier()
+    if rank == 0:
+        metric_after_self = get_task_repr_metric(curr_result_after_self, p.TASKS.NAMES[idx])
+        print(
+            '%d-%d: metric before=%f, metric after=%f, metric drop =%f' %
+            (idx, idx, metric_before, metric_after_self,
+             metric_after_self - metric_before))
+
+    model.load_state_dict(save_model_state_dict)
+    optimizer.load_state_dict(save_optimizer_state_dict)
+    scheduler.load_state_dict(save_scheduler_state_dict)
+
+    for idx2 in range(num_task):
+      model.train()
+      for _ in range(args.look_ahead_steps):
+          optimizer.zero_grad()
+
+          a_id, cpu_batch = next(affinity_enumerators[idx])
+          if a_id == len(affinity_data_loaders[idx]) - 1:
+              affinity_enumerators[idx] = enumerate(
+                  affinity_data_loaders[idx])
+
+          batch = to_cuda(cpu_batch)
+          images = batch['image']
+          output = model(images)
+
+          # Measure loss
+          loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[idx]])
+
+          loss_dict['total'].backward(retain_graph=True)
+
+          a_id, cpu_batch = next(affinity_enumerators[idx])
+          if a_id == len(affinity_data_loaders[idx]) - 1:
+              affinity_enumerators[idx] = enumerate(
+                  affinity_data_loaders[idx])
+
+          batch = to_cuda(cpu_batch)
+          images = batch['image']
+          output = model(images)
+
+          # Measure loss
+          loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[idx]])
+
+          loss_dict['total'].backward(retain_graph=True)
+
+          a_id, cpu_batch = next(affinity_enumerators[idx2])
+          if a_id == len(affinity_data_loaders[idx2]) - 1:
+            affinity_enumerators[idx2] = enumerate(
+                affinity_data_loaders[idx2])
+
+          batch = to_cuda(cpu_batch)
+          images = batch['image']
+          output = model(images)
+
+          # Measure loss
+          loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[idx2]])
+
+          loss_dict['total'].backward(retain_graph=True)
+
+          optimizer.step()
+          scheduler.step()
+          dist.barrier()
+
+      # evaluate the loss after looking ahead
+      model.eval()
+      curr_result_after_joint = test_phase(p, test_dataloader, model, criterion, None,
+                                          num_val=args.affinity_batches)
+
+
+      if rank == 0:
+          metric_after_joint = get_task_repr_metric(curr_result_after_joint, p.TASKS.NAMES[idx])
+          aff_mat[idx2, idx] = metric_after_joint - metric_after_self
+
+          if args.affinity_normalized_by_lr:
+            aff_mat[idx2, idx] = aff_mat[
+                idx2, idx] / optimizer.param_groups[0]['lr']
+
+          print(
+              '%d-%d: metric before=%f, metric after=%f, metric drop =%f' %
+              (idx2, idx, metric_before, metric_after_joint,
+               metric_after_joint - metric_before))
+
+          print('%d-%d: additional metric drop =%f' %
+                       (idx2, idx,
+                        metric_after_joint - metric_after_self))
+
+      # restore the model and optimizer
+      model.load_state_dict(save_model_state_dict)
+      optimizer.load_state_dict(save_optimizer_state_dict)
+      scheduler.load_state_dict(save_scheduler_state_dict)
+
+  model.load_state_dict(save_model_state_dict)
+  optimizer.load_state_dict(save_optimizer_state_dict)
+  scheduler.load_state_dict(save_scheduler_state_dict)
+  optimizer.zero_grad()
+  model.train()
+  return model, optimizer, scheduler, aff_mat
+
+
+def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loaders, test_dataloader, model, criterion,
+                                         optimizer, scheduler, epoch, tb_writer, tb_writer_test, iter_count, aff_mat):
+    """ Vanilla training with fixed loss weights """
+    model.train()
+
+    # For visualization of 3ddet in each epoch
+    if '3ddet' in p.TASKS.NAMES:
+        train_save_dirs = {task: os.path.join(p['save_dir'], 'train', task) for task in ['3ddet']}
+        for save_dir in train_save_dirs.values():
+            mkdir_if_missing(save_dir)
+
+    dataloader_len = [len(dataloader) for dataloader in train_loaders]
+    min_epoch_len = min(dataloader_len)
+    iter_dataloaders = [iter(dataloader)  for dataloader in train_loaders ]
+
+    num_task = len(train_loaders)
+    # aff_mat_epoch = torch.zeros(
+    #     (num_task, num_task, int(math.ceil(min_epoch_len / args.affinity_freq))))
+    # aff_mat_epoch = to_cuda(aff_mat_epoch)
+
+    for _ in tqdm(range(min_epoch_len)):
+        if iter_count % args.affinity_freq == 0:
+            model, optimizer, scheduler, aff_mat_tmp = our_affinity(model, optimizer, scheduler, criterion,
+                                                                affinity_loaders, test_dataloader, args, p)
+
+            aff_mat_tmp = aff_mat_tmp.expand_dim(-1)
+            if aff_mat is None:
+                aff_mat = aff_mat_tmp
+            else:
+                aff_mat = torch.cat([aff_mat, aff_mat_tmp], dim=-1)
+        if iter_count % p.val_interval == 0 and args.local_rank == 0:
+            mean_aff_mat = aff_mat.mean(dim=-1)
+            for a_id in range(num_task):
+                for b_id in range(num_task):
+                    print('%d-%d: %f' % (a_id, b_id, mean_aff_mat[a_id, b_id]))
+
+        optimizer.zero_grad()
+        for t_id, iter_dataloader in enumerate(iter_dataloaders):
+            # Forward pass
+            cpu_batch = next(iter_dataloader)
+            batch = to_cuda(cpu_batch)
+            images = batch['image']
+            output = model(images)
+
+            # Measure loss
+            loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[t_id]])
+            # get learning rate
+            lr = scheduler.get_lr()
+            loss_dict['lr'] = torch.tensor(lr[0])
+
+            if tb_writer is not None:
+                update_tb(tb_writer, 'Train_Loss', loss_dict, iter_count)
+
+            loss_dict['total'].backward()
+        iter_count += 1
+
+        # Backward
+        torch.nn.utils.clip_grad_norm_(model.parameters(), **p.grad_clip_param)
+        optimizer.step()
+        scheduler.step()
+
+        # end condition
+        if iter_count >= p.max_iter:
+            print('Max itereaction achieved.')
+            # return True, iter_count
+            end_signal = True
+        else:
+            end_signal = False
+
+        # Evaluate
+        if end_signal:
+            eval_bool = True
+        elif iter_count % p.val_interval == 0:
+            eval_bool = True
+        else:
+            eval_bool = False
+
+        # Perform evaluation
+        if eval_bool and args.local_rank == 0:
+            print('Evaluate at iter {}'.format(iter_count))
+            curr_result = test_phase(p, test_dataloader, model, criterion, iter_count)
+            tb_update_perf(p, tb_writer_test, curr_result, iter_count)
+            if '3ddet' in curr_result.keys():
+                curr_result.pop('3ddet')
+            print('Evaluate results at iteration {}: \n'.format(iter_count))
+            print(curr_result)
+            with open(os.path.join(p['save_dir'], p.version_name + '_' + str(iter_count) + '.txt'), 'w') as f:
+                json.dump(curr_result, f, indent=4)
+
+            # Checkpoint after evaluation
+            print('Checkpoint starts at iter {}....'.format(iter_count))
+            torch.save(
+                {'optimizer': optimizer.state_dict(), 'scheduler': scheduler.state_dict(), 'model': model.state_dict(),
+                 'epoch': epoch, 'iter_count': iter_count - 1, 'aff_mat': aff_mat}, p['checkpoint'])
+            print('Checkpoint finishs.')
+            model.train()  # set model back to train status
+
+        if end_signal:
+            return True, iter_count, aff_mat
+
+    return False, iter_count, aff_mat
 
 
 class PolynomialLR(torch.optim.lr_scheduler._LRScheduler):
