@@ -9,7 +9,7 @@ import torch
 import os
 
 @torch.no_grad()
-def test_phase(p, test_loader, model, criterion, epoch):
+def test_phase(p, test_loader, model, criterion, epoch, num_batch=None):
     all_tasks = [t for t in p.TASKS.NAMES]
     two_d_tasks = [t for t in p.TASKS.NAMES if t != '3ddet']
     performance_meter = PerformanceMeter(p, two_d_tasks)
@@ -28,6 +28,9 @@ def test_phase(p, test_loader, model, criterion, epoch):
     
     for i, batch in enumerate(tqdm(test_loader)):
         # Forward pass
+        if num_batch is not None and i > num_batch:
+            break
+
         with torch.no_grad():
             images = batch['image'].cuda(non_blocking=True)
             targets = {task: batch[task].cuda(non_blocking=True) for task in two_d_tasks}
