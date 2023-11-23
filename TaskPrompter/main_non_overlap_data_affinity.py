@@ -156,6 +156,7 @@ def main():
             print('Fresh start...')
         start_epoch = 0
         iter_count = 0
+        aff_mat = None
     if DEBUG_FLAG and args.local_rank == 0:
         print("\nFirst Testing...")
         if True:
