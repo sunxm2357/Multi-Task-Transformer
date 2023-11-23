@@ -309,7 +309,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
           # Measure loss
           loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[idx]])
 
-          loss_dict['total'].backward(retain_graph=True)
+          loss_dict['total'].backward()
 
           a_id, cpu_batch = next(affinity_enumerators[idx])
           if a_id == len(affinity_data_loaders[idx]) - 1:
@@ -323,7 +323,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
           # Measure loss
           loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[idx]])
 
-          loss_dict['total'].backward(retain_graph=True)
+          loss_dict['total'].backward()
 
           a_id, cpu_batch = next(affinity_enumerators[idx2])
           if a_id == len(affinity_data_loaders[idx2]) - 1:
@@ -337,7 +337,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
           # Measure loss
           loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[idx2]])
 
-          loss_dict['total'].backward(retain_graph=True)
+          loss_dict['total'].backward()
 
           optimizer.step()
           scheduler.step()
