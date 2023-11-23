@@ -41,6 +41,8 @@ parser.add_argument('--run_mode',
                     help='Config file for the experiment')
 parser.add_argument('--trained_model', default=None,
                     help='Config file for the experiment')
+parser.add_argument('--affinity_freq', default=10, type=int,
+                    help='Config file for the experiment')
 args = parser.parse_args()
 
 print('local rank: %s' %args.local_rank)
