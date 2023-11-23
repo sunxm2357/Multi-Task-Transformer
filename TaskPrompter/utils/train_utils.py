@@ -250,7 +250,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
 
   aff_mat = to_cuda( torch.zeros(num_task, num_task))
 
-  curr_result_before = test_phase(p, test_dataloader, model, criterion, None, num_val=args.affinity_batches)
+  curr_result_before = test_phase(p, test_dataloader, model, criterion, None, num_batch=args.affinity_batches)
   dist.barrier()
 
   for idx in range(num_task):
@@ -278,7 +278,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
     dist.barrier()
     # self evaluation
     model.eval()
-    curr_result_after_self = test_phase(p, test_dataloader, model, criterion, None, num_val=args.affinity_batches)
+    curr_result_after_self = test_phase(p, test_dataloader, model, criterion, None, num_batch=args.affinity_batches)
 
     dist.barrier()
     if rank == 0:
@@ -346,7 +346,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
       # evaluate the loss after looking ahead
       model.eval()
       curr_result_after_joint = test_phase(p, test_dataloader, model, criterion, None,
-                                          num_val=args.affinity_batches)
+                                          num_batch=args.affinity_batches)
 
 
       if rank == 0:
