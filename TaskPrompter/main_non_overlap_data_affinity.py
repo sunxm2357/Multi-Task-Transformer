@@ -42,9 +42,11 @@ parser.add_argument('--run_mode',
 parser.add_argument('--trained_model', default=None,
                     help='Config file for the experiment')
 parser.add_argument('--affinity_freq', default=10, type=int,
-                    help='Config file for the experiment')
+                    help='the freq to compute affinity')
 parser.add_argument('--affinity_batches', default=1, type=int,
-                    help='Config file for the experiment')
+                    help='the number of evaluation batches used to compute affinity')
+parser.add_argument('--look_ahead_steps', default=1, type=int,
+                    help='the number of steps of training when compute affinity')
 args = parser.parse_args()
 
 print('local rank: %s' %args.local_rank)
