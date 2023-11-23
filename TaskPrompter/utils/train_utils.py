@@ -404,7 +404,7 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
             model, optimizer, scheduler, aff_mat_tmp = our_affinity(model, optimizer, scheduler, criterion,
                                                                 affinity_loaders, test_dataloader, args, p, iter_count)
 
-            aff_mat_tmp = aff_mat_tmp.expand_dim(-1)
+            aff_mat_tmp = aff_mat_tmp.expand_dims(-1)
             if aff_mat is None:
                 aff_mat = aff_mat_tmp
             else:
