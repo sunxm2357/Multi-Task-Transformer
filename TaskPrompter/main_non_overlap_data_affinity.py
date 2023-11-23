@@ -49,6 +49,9 @@ parser.add_argument('--look_ahead_steps', default=1, type=int,
                     help='the number of steps of training when compute affinity')
 parser.add_argument('--affinity_normalized_by_lr', action='store_true',
                     help='the number of steps of training when compute affinity')
+
+parser.add_argument('--affinity_normalized_by_stl', action='store_true',
+                    help='the number of steps of training when compute affinity')
 args = parser.parse_args()
 
 print('local rank: %s' %args.local_rank)
