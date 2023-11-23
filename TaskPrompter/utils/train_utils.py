@@ -16,6 +16,7 @@ from copy import deepcopy
 
 repr_metric_keys = {'semseg': 'mIoU', 'depth': 'rmse', 'normals': 'mean', 'edge': 'loss'}
 large_better = {'semseg': 1, 'depth': -1 , 'normals': -1, 'edge': -1}
+stl_performance = {'semseg': 43.63, 'depth': 0.6145159115 , 'normals': 21.15938833, 'edge': 0.04755854912}
 
 def get_task_repr_metric(metrics, task):
   if task in repr_metric_keys:
@@ -356,6 +357,10 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
           if args.affinity_normalized_by_lr:
             aff_mat[idx2, idx] = aff_mat[
                 idx2, idx] / optimizer.param_groups[0]['lr']
+
+          if args.affinity_normalized_by_stl:
+            aff_mat[idx2, idx] = aff_mat[
+                idx2, idx] / stl_performance[p.TASKS.NAMES[idx]]
 
           print(
               '%d-%d: metric before=%f, metric after=%f, metric drop =%f' %
