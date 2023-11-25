@@ -41,11 +41,11 @@ parser.add_argument('--run_mode',
                     help='Config file for the experiment')
 parser.add_argument('--trained_model', default=None,
                     help='Config file for the experiment')
-parser.add_argument('--affinity_freq', default=10, type=int,
+parser.add_argument('--affinity_freq', default=100, type=int,
                     help='the freq to compute affinity')
-parser.add_argument('--affinity_batches', default=1, type=int,
+parser.add_argument('--affinity_batches', default=10, type=int,
                     help='the number of evaluation batches used to compute affinity')
-parser.add_argument('--look_ahead_steps', default=1, type=int,
+parser.add_argument('--look_ahead_steps', default=5, type=int,
                     help='the number of steps of training when compute affinity')
 parser.add_argument('--affinity_normalized_by_lr', action='store_true',
                     help='the number of steps of training when compute affinity')
