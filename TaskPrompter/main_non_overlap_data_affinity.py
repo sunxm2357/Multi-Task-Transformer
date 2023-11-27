@@ -153,7 +153,7 @@ def main():
         else:
             start_epoch = 0
         if 'aff_mat' in checkpoint.keys():
-            aff_mat = checkpoint
+            aff_mat = checkpoint['aff_mat']
         else:
             aff_mat = None
         if 'iter_count' in checkpoint.keys():
