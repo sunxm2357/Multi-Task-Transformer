@@ -397,6 +397,9 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
 def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loaders, test_dataloader, model, criterion,
                                          optimizer, scheduler, epoch, tb_writer, tb_writer_test, iter_count, aff_mat):
     """ Vanilla training with fixed loss weights """
+    if aff_mat is not None:
+        aff_mat = to_cuda(aff_mat)
+
     model.train()
 
     # For visualization of 3ddet in each epoch
