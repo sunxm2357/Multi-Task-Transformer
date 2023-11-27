@@ -13,6 +13,7 @@ from utils.test_utils import test_phase
 import math
 import torch.distributed as dist
 from copy import deepcopy
+import time
 
 repr_metric_keys = {'semseg': 'mIoU', 'depth': 'rmse', 'normals': 'mean', 'edge': 'loss'}
 large_better = {'semseg': 1, 'depth': -1 , 'normals': -1, 'edge': -1}
@@ -235,6 +236,7 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
 
 def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, test_dataloader,
                  args, p, iter_count):
+  start_time0 = time.time()
   rank = dist.get_rank() if dist.is_initialized() else 0
   affinity_enumerators = []
   for data_loader in affinity_data_loaders:
@@ -252,10 +254,13 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
   aff_mat = to_cuda( torch.zeros(num_task, num_task))
 
   curr_result_before = test_phase(p, test_dataloader, model, criterion, None, num_batch=args.affinity_batches)
-  dist.barrier()
+  start_time = time.time()
 
+  metric_before = get_task_repr_metric(curr_result_before, p.TASKS.NAMES[idx])
+  print('evaluation time = ', time.time() - start_time)
+  dist.barrier()
   for idx in range(num_task):
-    metric_before = get_task_repr_metric(curr_result_before, p.TASKS.NAMES[idx])
+    start_time = time.time()
     # look ahead for several steps with its own loss
     model.train()
     for _ in range(args.look_ahead_steps):
@@ -275,12 +280,12 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
       loss_dict['total'].backward()
       optimizer.step()
       scheduler.step()
-
+    print('STL training time for affinity_steps = ', time.time()-start_time)
+    start_time = time.time()
     dist.barrier()
     # self evaluation
     model.eval()
     curr_result_after_self = test_phase(p, test_dataloader, model, criterion, None, num_batch=args.affinity_batches)
-
     dist.barrier()
     if rank == 0:
         metric_after_self = get_task_repr_metric(curr_result_after_self, p.TASKS.NAMES[idx])
@@ -288,12 +293,14 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
             '%d-%d: metric before=%f, metric after=%f, metric drop =%f' %
             (idx, idx, metric_before, metric_after_self,
              metric_after_self - metric_before))
-
+    print('Evaluation time after STL for affinity_steps = ', time.time() - start_time)
+    start_time = time.time()
     model.load_state_dict(save_model_state_dict)
     optimizer.load_state_dict(save_optimizer_state_dict)
     scheduler.load_state_dict(save_scheduler_state_dict)
-
+    print('Evaluation time for reloading the model = ', time.time() - start_time)
     for idx2 in range(num_task):
+      start_time = time.time()
       model.train()
       for _ in range(args.look_ahead_steps):
           optimizer.zero_grad()
@@ -344,6 +351,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
           scheduler.step()
           dist.barrier()
 
+      print('MTL training time for affinity steps  = ', time.time() - start_time)
       # evaluate the loss after looking ahead
       model.eval()
       curr_result_after_joint = test_phase(p, test_dataloader, model, criterion, None,
@@ -381,6 +389,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
   scheduler.load_state_dict(save_scheduler_state_dict)
   optimizer.zero_grad()
   model.train()
+  print('Total time for affinity steps = ', time.time() - start_time0)
   return model, optimizer, scheduler, aff_mat
 
 
