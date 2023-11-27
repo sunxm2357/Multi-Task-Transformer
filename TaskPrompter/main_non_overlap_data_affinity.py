@@ -154,6 +154,8 @@ def main():
             start_epoch = 0
         if 'aff_mat' in checkpoint.keys():
             aff_mat = checkpoint['aff_mat']
+            if isinstance(aff_mat, dict):
+                aff_mat = aff_mat['aff_mat']
         else:
             aff_mat = None
         if 'iter_count' in checkpoint.keys():
@@ -184,8 +186,6 @@ def main():
                 print('Epoch %d/%d' %(epoch+1, p['epochs']))
                 print('-'*10)
 
-            import pdb
-            pdb.set_trace()
             end_signal, iter_count, aff_mat = train_phase_no_overlap_data_affinity(p, args, train_dataloaders, affinity_dataloaders, test_dataloader, model, criterion, optimizer, scheduler, epoch, tb_writer_train, tb_writer_test, iter_count, aff_mat)
 
             if end_signal:
