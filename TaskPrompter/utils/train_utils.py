@@ -255,11 +255,12 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
 
   curr_result_before = test_phase(p, test_dataloader, model, criterion, None, num_batch=args.affinity_batches)
   start_time = time.time()
-
-  metric_before = get_task_repr_metric(curr_result_before, p.TASKS.NAMES[idx])
   print('evaluation time = ', time.time() - start_time)
+
   dist.barrier()
   for idx in range(num_task):
+    metric_before = get_task_repr_metric(curr_result_before, p.TASKS.NAMES[idx])
+
     start_time = time.time()
     # look ahead for several steps with its own loss
     model.train()
