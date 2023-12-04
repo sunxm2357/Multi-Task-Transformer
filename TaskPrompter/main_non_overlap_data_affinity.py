@@ -156,6 +156,12 @@ def main():
             aff_mat = checkpoint['aff_mat']
             if isinstance(aff_mat, dict):
                 aff_mat = aff_mat['aff_mat']
+            mean_aff_mat = aff_mat.mean(dim=-1)
+            num_task = mean_aff_mat.shape[0]
+            for a_id in range(num_task):
+                for b_id in range(num_task):
+                    print('%d-%d: %f' % (a_id, b_id, mean_aff_mat[a_id, b_id]))
+            print(p.TASKS.NAMES)
         else:
             aff_mat = None
         if 'iter_count' in checkpoint.keys():
