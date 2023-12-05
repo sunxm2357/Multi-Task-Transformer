@@ -1,5 +1,5 @@
 # Setup
-version_name: 1
+version_name: "1"
 out_dir: "../fullset/"
 
 # Database
