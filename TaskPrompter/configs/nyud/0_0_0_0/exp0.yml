@@ -1,6 +1,6 @@
 # Setup
 version_name: "0"
-out_dir: "../0_0_0_0"
+out_dir: "../0_0_0_0/"
 
 # Database
 train_db_name: NYUD
@@ -13,7 +13,6 @@ task_files:
   semseg: init_gt/labelled_set_200_1699297026.txt
   depth: init_gt/labelled_set_200_1699297029.txt
   normals: init_gt/labelled_set_200_1699297033.txt
-  edge: init_gt/labelled_set_200_1699297038.txt
 
 # Optimizer and scheduler
 intermediate_supervision: False
@@ -42,7 +41,7 @@ use_ctr: False
 task_dictionary:
    include_semseg: True
    include_depth: True
-   include_edge: True
+   include_edge: False
    include_normals: True
    edge_w: 0.95
 
@@ -52,4 +51,3 @@ loss_kwargs:
        semseg: 1.0
        depth: 1.0
        normals: 10
-       edge: 50.0
