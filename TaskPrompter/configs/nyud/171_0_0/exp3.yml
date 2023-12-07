@@ -10,7 +10,7 @@ valBatch: 6
 nworkers: 2
 ignore_index: 255
 task_files:
-  semseg: 171_0_0//random371_200_1699297026_3.txt
+  semseg: 171_0_0_0//random371_200_1699297026_3.txt
   depth: init_gt/labelled_set_200_1699297029.txt
   normals: init_gt/labelled_set_200_1699297033.txt
  
