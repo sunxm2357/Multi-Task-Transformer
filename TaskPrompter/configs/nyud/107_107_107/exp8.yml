@@ -10,9 +10,9 @@ valBatch: 6
 nworkers: 2
 ignore_index: 255
 task_files:
-  semseg: 107_107_107//random371_200_1699297026_8.txt
-  depth: 107_107_107/labelled_set_200_1699297029_8.txt
-  normals: 107_107_107/labelled_set_200_1699297033_8.txt
+  semseg: 107_107_107/random371_200_1699297026_8.txt
+  depth: 107_107_107/random307_200_1699297029_8.txt
+  normals: 107_107_107/random307_200_1699297033_8.txt
  
 
 # Optimizer and scheduler
