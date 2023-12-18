@@ -47,5 +47,3 @@ task_dictionary:
 loss_kwargs:
    loss_weights:
        semseg: 1.0
-       depth: 1.0
-       normals: 10
