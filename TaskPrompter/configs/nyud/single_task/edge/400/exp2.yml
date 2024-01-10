@@ -10,7 +10,7 @@ valBatch: 6
 nworkers: 2
 ignore_index: 255
 task_files:
-  depth: 400_400_400/random600_200_1699297038_2.txt
+  edge: 400_400_400/random600_200_1699297038_2.txt
 
 # Optimizer and scheduler
 intermediate_supervision: False
