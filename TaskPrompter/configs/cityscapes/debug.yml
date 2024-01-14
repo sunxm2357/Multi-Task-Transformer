@@ -9,6 +9,9 @@ trBatch: 4
 valBatch: 6
 nworkers: 2
 ignore_index: 255
+task_files:
+  semseg: init_gt/labelled_set_300_1691347206.txt
+  depth: init_gt/labelled_set_300_1691347335.txt
 
 # Optimizer and scheduler
 intermediate_supervision: False

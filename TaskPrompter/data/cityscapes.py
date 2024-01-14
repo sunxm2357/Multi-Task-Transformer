@@ -76,7 +76,7 @@ class CityScapes_MT(data.Dataset):
         _depth_gt_dir = root
 
         # train/val/test splits are pre-cut
-        _splits_dir = root
+        _splits_dir = os.path.join(root, 'lists')
 
         print('Initializing dataloader for Cityscapes {} set'.format(self.split))
         if task_file is not None:
