@@ -213,6 +213,11 @@ def get_test_dataset(p, transforms=None):
                                     do_semseg='semseg' in p.TASKS.NAMES, 
                                     do_normals='normals' in p.TASKS.NAMES, 
                                     do_depth='depth' in p.TASKS.NAMES)
+    elif db_name == 'CityScapes':
+        from data.nyud import CityScapes_MT
+        database = CityScapes_MT(p.db_paths['CityScapes_MT'], download=False, split='val', transform=transforms,
+                                    do_semseg='semseg' in p.TASKS.NAMES,
+                                    do_depth='depth' in p.TASKS.NAMES)
         
     elif db_name == 'Cityscapes3D':
         from data.cityscapes3d import CITYSCAPES3D
