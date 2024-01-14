@@ -8,6 +8,7 @@ val_db_name: CityScapes
 trBatch: 4
 valBatch: 6
 nworkers: 2
+ignore_index: 255
 
 # Optimizer and scheduler
 intermediate_supervision: False

@@ -37,9 +37,7 @@ class CityScapes_MT(data.Dataset):
                  transform=None,
                  retname=True,
                  overfit=False,
-                 do_edge=False,
                  do_semseg=False,
-                 do_normals=False,
                  do_depth=False,
                  task_file=None
                  ):
