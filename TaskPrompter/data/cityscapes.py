@@ -57,6 +57,7 @@ class CityScapes_MT(data.Dataset):
         self.root = root
         self.groups = info[split]
 
+        self.split = split
         self.retname = retname
 
         # Original Images
