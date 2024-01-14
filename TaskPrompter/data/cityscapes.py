@@ -86,7 +86,6 @@ class CityScapes_MT(data.Dataset):
                 idx = int(line.strip())
                 self.im_ids.append(idx)
                 _image = os.path.join(_image_dir, 'train/image/%d.npy' % idx)
-                print(_image)
                 assert os.path.isfile(_image)
                 self.images.append(_image)
 
@@ -102,7 +101,6 @@ class CityScapes_MT(data.Dataset):
                 self.im_ids.append(group[0].split('/')[-1].split('.')[0])
 
                 _image = os.path.join(_image_dir, group[0])
-                print(_image)
                 assert os.path.isfile(_image)
                 self.images.append(_image)
 
