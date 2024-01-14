@@ -127,8 +127,8 @@ def create_config(exp_file, params):
     elif cfg['train_db_name'] == 'CityScapes':
         cfg.TRAIN = edict()
         cfg.TEST = edict()
-        cfg.TRAIN.SCALE = (448, 576)
-        cfg.TEST.SCALE = (448, 576)
+        cfg.TRAIN.SCALE = (256, 256)
+        cfg.TEST.SCALE = (256, 256)
 
     elif cfg['train_db_name'] == 'Cityscapes3D':
         cfg.IMAGE_ORI_SIZE = (1024, 2048)
