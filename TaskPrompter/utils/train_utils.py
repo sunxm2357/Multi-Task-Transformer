@@ -173,6 +173,8 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
             cpu_batch = next(iter_dataloader)
             batch = to_cuda(cpu_batch)
             images = batch['image']
+            import pdb
+            pdb.set_trace()
             output = model(images)
 
             # Measure loss
