@@ -63,20 +63,20 @@ class CityScapes_MT(data.Dataset):
         # Original Images
         self.im_ids = []
         self.images = []
-        _image_dir = os.path.join(root, split,  'image')
+        _image_dir = root
 
         # Semantic segmentation
         self.do_semseg = do_semseg
         self.semsegs = []
-        _semseg_gt_dir = os.path.join(root,  split, 'label_19')
+        _semseg_gt_dir = root
 
         # Depth
         self.do_depth = do_depth
         self.depths = []
-        _depth_gt_dir = os.path.join(root,  split, 'depth')
+        _depth_gt_dir = root
 
         # train/val/test splits are pre-cut
-        _splits_dir = os.path.join(root, 'gt_sets')
+        _splits_dir = root
 
         print('Initializing dataloader for Cityscapes {} set'.format(self.split))
         if task_file is not None:
