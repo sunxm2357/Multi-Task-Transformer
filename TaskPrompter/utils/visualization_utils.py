@@ -64,6 +64,8 @@ def labelcolormap(N):
 def vis_semseg(p, _semseg):
     if p['train_db_name'] == "NYUD":
         new_cmap = labelcolormap(40)
+    elif p['train_db_name'] == "CityScapes":
+        new_cmap = labelcolormap(19)
     elif p['train_db_name'] == "PASCALContext":
         new_cmap = labelcolormap(21)
     elif p['train_db_name'] == "Cityscapes3D":

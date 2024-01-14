@@ -51,7 +51,7 @@ class SemsegMeter(object):
             cat_names = NYU_CATEGORY_NAMES
             has_bg = False
 
-        elif database == 'Cityscapes3D':
+        elif database in ['Cityscapes3D', 'CityScapes']:
             n_classes = 19
             cat_names = CITYSCAPES_CATEGORY_NAMES
             has_bg = False

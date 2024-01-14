@@ -99,7 +99,7 @@ def get_transformations(p):
     import torchvision
 
     # Training transformations
-    if p['train_db_name'] == 'NYUD' or p['train_db_name'] == 'PASCALContext':
+    if p['train_db_name'] == 'NYUD' or p['train_db_name'] == 'PASCALContext' or p['train_db_name'] == 'CityScapes':
         train_transforms = torchvision.transforms.Compose([ # from ATRC
             transforms.RandomScaling(scale_factors=[0.5, 2.0], discrete=False),
             transforms.RandomCrop(size=p.TRAIN.SCALE, cat_max_ratio=0.75),
@@ -158,6 +158,23 @@ def get_train_dataset(p, transforms=None, task_name=None):
                                do_normals='normals' == task_name,
                                do_depth='depth' == task_name,
                                task_file=task_file,  overfit=False)
+
+    if db_name == 'CityScapes':
+        from data.cityscapes import CityScapes_MT
+        if task_name is None:
+            database = CityScapes_MT(p.db_paths['CityScapes_MT'], download=False, split='train', transform=transforms,
+                                        do_semseg='semseg' in p.TASKS.NAMES,
+                                        do_depth='depth' in p.TASKS.NAMES, overfit=False)
+        else:
+            if 'task_files' in p.keys():
+                task_file = p['task_files'][task_name]
+            else:
+                task_file = None
+            database = CityScapes_MT(p.db_paths['CityScapes_MT'], download=False, split='train', transform=transforms,
+                               do_semseg='semseg' == task_name,
+                               do_depth='depth' == task_name,
+                               task_file=task_file,  overfit=False)
+
     if db_name == 'Cityscapes3D':
         from data.cityscapes3d import CITYSCAPES3D
         database = CITYSCAPES3D(p, p.db_paths['Cityscapes3D'], split=["train"], is_transform=True,

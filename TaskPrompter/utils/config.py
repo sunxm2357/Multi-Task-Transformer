@@ -34,6 +34,8 @@ def parse_task_dictionary(db_name, task_dictionary):
             task_cfg.NUM_OUTPUT[tmp] = 21
         elif db_name == 'NYUD':
             task_cfg.NUM_OUTPUT[tmp] = 40
+        elif db_name == 'CityScapes':
+            task_cfg.NUM_OUTPUT[tmp] = 19
         elif db_name == 'Cityscapes3D':
             task_cfg.NUM_OUTPUT[tmp] = 19
         else:
@@ -121,6 +123,12 @@ def create_config(exp_file, params):
         cfg.TEST = edict()
         cfg.TRAIN.SCALE = (448, 576)
         cfg.TEST.SCALE = (448, 576)
+
+    elif cfg['train_db_name'] == 'CityScapes':
+        cfg.TRAIN = edict()
+        cfg.TEST = edict()
+        cfg.TRAIN.SCALE = (224, 224)
+        cfg.TEST.SCALE = (224, 224)
 
     elif cfg['train_db_name'] == 'Cityscapes3D':
         cfg.IMAGE_ORI_SIZE = (1024, 2048)
