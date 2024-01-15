@@ -114,12 +114,20 @@ def get_transformations(p):
         # Testing
         import pdb
         pdb.set_trace()
-        valid_transforms = torchvision.transforms.Compose([
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            transforms.PadImage(size=p.TEST.SCALE),
-            transforms.AddIgnoreRegions(),
-            transforms.ToTensor(),
-        ])
+        if p['train_db_name'] == 'CityScapes':
+            valid_transforms = torchvision.transforms.Compose([
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                transforms.CentralCrop(size=p.TEST.SCALE),
+                transforms.AddIgnoreRegions(),
+                transforms.ToTensor(),
+            ])
+        else:
+            valid_transforms = torchvision.transforms.Compose([
+                transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+                transforms.PadImage(size=p.TEST.SCALE),
+                transforms.AddIgnoreRegions(),
+                transforms.ToTensor(),
+            ])
         return train_transforms, valid_transforms
 
     else:

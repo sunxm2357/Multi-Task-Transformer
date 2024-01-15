@@ -214,6 +214,79 @@ class RandomCrop:
     def __repr__(self):
         return self.__class__.__name__ + '()'
 
+class CentralCrop:
+    """Random crop image if it exceeds desired size
+    Args:
+        size: Desired size
+    Returns:
+        sample: The input sample randomly cropped
+    """
+
+    def __init__(self, size, cat_max_ratio=1):
+        if isinstance(size, int):
+            self.size = tuple([size, size])
+        elif isinstance(size, (list, tuple)):
+            self.size = size
+        else:
+            raise ValueError('Crop size must be an int, tuple or list')
+        self.cat_max_ratio = cat_max_ratio  # need semantic labels for this
+
+    def get_random_crop_loc(self, uncropped):
+        """Gets a random crop location.
+        Args:
+            key: Key indicating the uncropped input origin
+            uncropped: Image or target to be cropped.
+        Returns:
+            Cropping region.
+        """
+        uncropped_shape = np.shape(uncropped)
+        img_height = uncropped_shape[0]
+        img_width = uncropped_shape[1]
+
+        crop_height = self.size[0]
+        crop_width = self.size[1]
+        if img_height == crop_height and img_width == crop_width:
+            return None
+        # Get random offset uniformly from [0, max_offset]
+        max_offset_height = max(img_height - crop_height, 0)
+        max_offset_width = max(img_width - crop_width, 0)
+
+        offset_height = max_offset_height // 2
+        offset_width = max_offset_width // 2
+        crop_loc = [offset_height, offset_height + crop_height,
+                    offset_width, offset_width + crop_width]
+
+        return crop_loc
+
+    def random_crop(self, key, uncropped, crop_loc):
+        if crop_loc is None:
+            return uncropped
+
+        cropped = uncropped[crop_loc[0]:crop_loc[1],
+                            crop_loc[2]:crop_loc[3], :]
+        return cropped
+
+    def __call__(self, sample):
+        crop_location = self.get_random_crop_loc(sample['image'])
+        if self.cat_max_ratio < 1.:
+            # Repeat 10 times
+            if 'semseg' in sample.keys():
+                for _ in range(10):
+                    seg_tmp = self.random_crop('semseg', sample['semseg'], crop_location)
+                    labels, cnt = np.unique(seg_tmp, return_counts=True)
+                    cnt = cnt[labels != 255]
+                    if len(cnt) > 1 and np.max(cnt) / np.sum(cnt) < self.cat_max_ratio:
+                        break
+                    crop_location = self.get_random_crop_loc(sample['image'])
+
+        for key, val in sample.items():
+            if key == 'meta':
+                continue
+            sample[key] = self.random_crop(key, val, crop_location)
+        return sample
+
+    def __repr__(self):
+        return self.__class__.__name__ + '()'
 
 class RandomHorizontalFlip:
     """Horizontally flip the given image and ground truth randomly."""
