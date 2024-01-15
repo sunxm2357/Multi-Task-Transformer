@@ -112,8 +112,6 @@ def get_transformations(p):
         ])
 
         # Testing
-        import pdb
-        pdb.set_trace()
         if p['train_db_name'] == 'CityScapes':
             valid_transforms = torchvision.transforms.Compose([
                 transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
