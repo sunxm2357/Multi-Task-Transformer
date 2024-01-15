@@ -111,7 +111,9 @@ def get_transformations(p):
             transforms.ToTensor(),
         ])
 
-        # Testing 
+        # Testing
+        import pdb
+        pdb.set_trace()
         valid_transforms = torchvision.transforms.Compose([
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             transforms.PadImage(size=p.TEST.SCALE),
