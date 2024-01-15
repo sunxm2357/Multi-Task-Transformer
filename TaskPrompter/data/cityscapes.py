@@ -170,7 +170,9 @@ class CityScapes_MT(data.Dataset):
 
     def _load_depth(self, index):
         _depth = np.load(self.depths[index])
-        _depth = np.expand_dims(_depth.astype(np.float32), axis=2)
+        _depth = _depth.astype(np.float32)
+        if _depth.ndim == 2:
+            _depth = np.expand_dims(_depth, axis=2)
         return _depth
 
     def __str__(self):
