@@ -270,6 +270,7 @@ class ToTensor:
         for key, val in sample.items():
             if key == 'meta':
                 continue
+            print(key, val.shape)
             sample[key] = torch.from_numpy(val.transpose((2, 0, 1))).float()
         return sample
 
