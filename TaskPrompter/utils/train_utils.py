@@ -454,6 +454,7 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
                 loss_dict['total'].backward()
             except RuntimeError:
                 print('GPU error for bp')
+                optimizer.zero_grad()
         iter_count += 1
 
         # Backward
