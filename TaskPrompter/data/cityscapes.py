@@ -123,6 +123,7 @@ class CityScapes_MT(data.Dataset):
             self.images = self.images[:n_of]
             self.im_ids = self.im_ids[:n_of]
 
+        print(self.transform)
         # Display stats
         print('Number of dataset images: {:d}'.format(len(self.images)))
 
