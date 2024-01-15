@@ -433,6 +433,7 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
                 for b_id in range(num_task):
                     print('%d-%d: %f' % (a_id, b_id, mean_aff_mat[a_id, b_id]))
 
+        print('start of opt')
         optimizer.zero_grad()
         for t_id, iter_dataloader in enumerate(iter_dataloaders):
             # Forward pass
@@ -443,6 +444,7 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
 
             # Measure loss
             loss_dict = criterion(output, batch, tasks=[p.TASKS.NAMES[t_id]])
+            print('loss computed ...')
             # get learning rate
             lr = scheduler.get_lr()
             loss_dict['lr'] = torch.tensor(lr[0])
