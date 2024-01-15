@@ -245,6 +245,8 @@ class Normalize:
         self.std = np.array(std, dtype=np.float32).reshape(1, 1, 3)
 
     def normalize_img(self, img):
+        import pdb
+        pdb.set_trace()
         assert img.dtype == np.float32
         scaled = img.copy() / 255.
         scaled -= self.mean
