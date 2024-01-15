@@ -450,7 +450,10 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
             if tb_writer is not None:
                 update_tb(tb_writer, 'Train_Loss', loss_dict, iter_count)
 
-            loss_dict['total'].backward()
+            try:
+                loss_dict['total'].backward()
+            except RuntimeError:
+                print('GPU error for bp')
         iter_count += 1
 
         # Backward
