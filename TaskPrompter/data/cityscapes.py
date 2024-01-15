@@ -130,14 +130,14 @@ class CityScapes_MT(data.Dataset):
         sample = {}
 
         _img = self._load_img(index)
-        sample['image'] = _img
+        sample['image'] = _img.astype(np.float32)
 
         if self.do_semseg:
             _semseg = self._load_semseg(index)
             if _semseg.shape[:2] != _img.shape[:2]:
                 print('RESHAPE SEMSEG')
                 _semseg = cv2.resize(_semseg, _img.shape[:2][::-1], interpolation=cv2.INTER_NEAREST)
-            sample['semseg'] = _semseg
+            sample['semseg'] = _semseg.astype(np.float32)
 
 
         if self.do_depth:
@@ -145,7 +145,7 @@ class CityScapes_MT(data.Dataset):
             if _depth.shape[:2] != _img.shape[:2]:
                 print('RESHAPE DEPTH')
                 _depth = cv2.resize(_depth, _img.shape[:2][::-1], interpolation=cv2.INTER_NEAREST)
-            sample['depth'] = _depth
+            sample['depth'] = _depth.astype(np.float32)
 
         if self.retname:
             sample['meta'] = {'img_name': str(self.im_ids[index]),
