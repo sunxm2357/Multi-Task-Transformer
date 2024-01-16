@@ -427,6 +427,7 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
                 aff_mat = aff_mat_tmp
             else:
                 aff_mat = torch.cat([aff_mat, aff_mat_tmp], dim=-1)
+            torch.cuda.empty_cache()
         if iter_count % p.val_interval == 0 and args.local_rank == 0:
             mean_aff_mat = aff_mat.mean(dim=-1)
             for a_id in range(num_task):
@@ -434,6 +435,7 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
                     print('%d-%d: %f' % (a_id, b_id, mean_aff_mat[a_id, b_id]))
 
         print('start of opt')
+
         optimizer.zero_grad()
         for t_id, iter_dataloader in enumerate(iter_dataloaders):
             # Forward pass
