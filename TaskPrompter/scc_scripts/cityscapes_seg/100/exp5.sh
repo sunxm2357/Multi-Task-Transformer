@@ -42,4 +42,4 @@ conda activate taskprompter
 
 cd /projectnb/ivc-ml/sunxm/code/Multi-Task-Transformer/TaskPrompter
 
-CUDA_LAUNCH_BLOCKING=1 python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/cityscapes/seg/100/exp5.yml' --run_mode train --affinity_normalized_by_lr --affinity_normalized_by_stl
+CUDA_LAUNCH_BLOCKING=1 python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/cityscapes/seg/100/exp5.yml' --run_mode train
