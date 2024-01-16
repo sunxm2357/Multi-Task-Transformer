@@ -63,6 +63,7 @@ def train_phase(p, args, train_loader, test_dataloader, model, criterion, optimi
         torch.nn.utils.clip_grad_norm_(model.parameters(), **p.grad_clip_param)
         optimizer.step()
         scheduler.step()
+        torch.cuda.empty_cache()
 
         # vis training sample 3ddet
         if '3ddet' in p.TASKS.NAMES and i==0:
@@ -191,6 +192,7 @@ def train_phase_no_overlap_data(p, args, train_loaders, test_dataloader, model, 
         torch.nn.utils.clip_grad_norm_(model.parameters(), **p.grad_clip_param)
         optimizer.step()
         scheduler.step()
+        torch.cuda.empty_cache()
 
         # end condition
         if iter_count >= p.max_iter:
@@ -281,6 +283,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
       loss_dict['total'].backward()
       optimizer.step()
       scheduler.step()
+      torch.cuda.empty_cache()
     print('STL training time for affinity_steps = ', time.time()-start_time)
     start_time = time.time()
     dist.barrier()
@@ -350,6 +353,7 @@ def our_affinity(model, optimizer, scheduler, criterion, affinity_data_loaders, 
 
           optimizer.step()
           scheduler.step()
+          torch.cuda.empty_cache()
           dist.barrier()
 
       print('MTL training time for affinity steps  = ', time.time() - start_time)
@@ -460,6 +464,7 @@ def train_phase_no_overlap_data_affinity(p, args, train_loaders, affinity_loader
         torch.nn.utils.clip_grad_norm_(model.parameters(), **p.grad_clip_param)
         optimizer.step()
         scheduler.step()
+        torch.cuda.empty_cache()
 
         # end condition
         if iter_count >= p.max_iter:
