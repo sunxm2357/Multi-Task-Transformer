@@ -59,6 +59,7 @@ def set_seed(seed):
     torch.cuda.manual_seed_all(seed)
 
 def main():
+    torch.cuda.empty_cache()
     set_seed(0)
     # Retrieve config file
     params = {'run_mode': args.run_mode}
