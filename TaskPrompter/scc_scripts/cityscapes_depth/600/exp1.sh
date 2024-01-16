@@ -35,11 +35,11 @@ echo "=========================================================="
 
 
 module load miniconda
-module load cuda/11.1
+module load cuda/12.2
 module load gcc
-conda activate taskprompter
+conda activate taskprompter3
 #conda install -c conda-forge opencv
 
-cd /projectnb/ivc-ml/sunxm/code/Multi-Task-Transformer/TaskPrompter
+cd /projectnb/ivc-ml/sunxm/code/Multi-Task-Transformer/taskprompter3
 
 CUDA_LAUNCH_BLOCKING=1 python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/cityscapes/depth/600/exp1.yml' --run_mode train
