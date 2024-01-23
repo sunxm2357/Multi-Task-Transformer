@@ -1,6 +1,6 @@
 # Setup
 version_name: "7"
-out_dir: "../126_0_150"
+out_dir: "../126_0_150/"
 
 # Database
 train_db_name: NYUD
@@ -11,7 +11,7 @@ nworkers: 2
 ignore_index: 255
 task_files:
   semseg: 126_0_150/random326_200_1699297026_7.txt
-  semseg: 126_0_150/random350_200_1699297029_7.txt
+  depth: 126_0_150/random350_200_1699297029_7.txt
   normals: init_gt/labelled_set_200_1699297033.txt
  
 
