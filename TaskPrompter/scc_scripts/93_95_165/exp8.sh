@@ -1,6 +1,6 @@
 #!/bin/bash -l
 
-#$ -N m93_95_195_4
+#$ -N m93_95_165_8
 
 #$ -m bea
 
@@ -42,4 +42,4 @@ conda activate taskprompter3
 
 cd /projectnb/ivc-ml/sunxm/code/Multi-Task-Transformer/TaskPrompter
 
-  python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/93_95_195/exp4.yml' --run_mode train
+  python -m torch.distributed.launch --nproc_per_node=1  --master_port=$((RANDOM%1000+12000))  main_non_overlap_data.py --config_exp './configs/nyud/93_95_165/exp8.yml' --run_mode train

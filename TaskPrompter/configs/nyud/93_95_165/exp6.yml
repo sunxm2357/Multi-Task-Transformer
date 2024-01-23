@@ -1,6 +1,6 @@
 # Setup
-version_name: "2"
-out_dir: "../93_95_195/"
+version_name: "6"
+out_dir: "../93_95_165/"
 
 # Database
 train_db_name: NYUD
@@ -10,9 +10,9 @@ valBatch: 6
 nworkers: 2
 ignore_index: 255
 task_files:
-  semseg: 93_95_195/random293_200_1699297026_2.txt
-  depth: 93_95_195/random365_200_1699297029_2.txt
-  normals: 93_95_195/random295_200_1699297033_2.txt
+  semseg: 93_95_165/random293_200_1699297026_6.txt
+  depth: 93_95_165/random365_200_1699297029_6.txt
+  normals: 93_95_165/random295_200_1699297033_6.txt
  
 
 # Optimizer and scheduler
