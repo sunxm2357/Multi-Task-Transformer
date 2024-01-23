@@ -37,7 +37,7 @@ echo "=========================================================="
 module load miniconda
 module load cuda/11.1
 module load gcc
-conda activate taskprompter
+conda activate taskprompter3
 #conda install -c conda-forge opencv
 
 cd /projectnb/ivc-ml/sunxm/code/Multi-Task-Transformer/TaskPrompter
