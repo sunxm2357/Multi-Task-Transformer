@@ -35,7 +35,7 @@ echo "=========================================================="
 
 
 module load miniconda
-module load cuda/11.1
+module load cuda/12.2
 module load gcc
 conda activate taskprompter3
 #conda install -c conda-forge opencv
